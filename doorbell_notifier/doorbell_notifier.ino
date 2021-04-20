@@ -46,7 +46,7 @@ void loop() {
     Serial.print(currentMillis);
     Serial.println(" on");
     if (shouldSend()) {
-      sendMessage("Oi anjing! Ada orang di depan.");
+      sendMessage("Assalamualaikum, ada orang di depan.");
       isLastSentSet = true;
       lastSentMillis = currentMillis;
     }
