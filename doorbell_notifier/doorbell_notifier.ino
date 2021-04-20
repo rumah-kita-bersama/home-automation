@@ -3,7 +3,7 @@
 
 #define NUM_RETRY 10
 #define HOST "api.telegram.org"
-#define SEND_THRESHOLD_MILLIS 6000
+#define SEND_THRESHOLD_MILLIS 10000
 #define BELL_PIN D8
 
 WiFiClientSecure httpsClient;
@@ -16,12 +16,9 @@ void setup() {
   connectWiFi();
   setupHttpsClient();
   pinMode(BELL_PIN, INPUT);
-  Serial.println("ready");
 }
 
 void connectWiFi() {
-  Serial.begin(9600);
-
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   while (WiFi.status() != WL_CONNECTED)
   {
@@ -43,8 +40,6 @@ void loop() {
   }
   
   if (digitalRead(BELL_PIN)) {
-    Serial.print(currentMillis);
-    Serial.println(" on");
     if (shouldSend()) {
       sendMessage("Assalamualaikum, ada orang di depan.");
       isLastSentSet = true;
