@@ -1,0 +1,14 @@
+[Unit]
+Description=Kermit Bot Service
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=pi
+ExecStart=/home/pi/remote/venv/bin/python3 /home/pi/remote/main.py
+
+[Install]
+WantedBy=multi-user.target

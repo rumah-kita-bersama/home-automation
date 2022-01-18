@@ -1,3 +1,8 @@
 secrets.ino
 .DS_Store
 libraries
+
+venv/
+secrets.json
+*.pyc
+__pycache__/
