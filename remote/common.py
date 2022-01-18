@@ -42,7 +42,7 @@ class TelegramBot:
         self.updater = Updater(token=token, use_context=True)
 
     def start(self):
-        self.updater.start_polling()
+        self.updater.start_polling(drop_pending_updates=True)
 
     def add_handler(self, handler):
         handler.register(self.updater.dispatcher)
