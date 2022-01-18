@@ -3,12 +3,13 @@ from common import (
     BaseHandler,
     TelegramBot,
     Tradfri,
-    load_secrets,    
+    load_secrets,
 )
 
 import requests
 
 RAGIL_K = "ragil"
+
 
 class AC:
     def __init__(self, ip):
@@ -32,20 +33,23 @@ class RagilHandler(BaseHandler):
         if text.startswith("lg"):
             try:
                 val_t = text.removeprefix("lg").strip()
-                if val_t == "m":
+                if val_t == "x":
+                    val = 0
+                elif val_t == "m":
                     val = 128
                 elif val_t == "h":
                     val = 192
                 elif val_t == "l":
-                    val = 64                
+                    val = 64
                 else:
                     val = int(val_t)
-                
+
                 self.tradfri.set_light_dimmer_value(int(self.light_id), val)
 
             except Exception as e:
-                context.bot.send_message(chat_id=update.effective_chat.id, text="err or invalid value (l, m, h, 0-254)")
-    
+                context.bot.send_message(
+                    chat_id=update.effective_chat.id, text="err or invalid value (l, m, h, 0-254)" + str(e))
+
         elif text.startswith("ac"):
             try:
                 val_t = text.removeprefix("ac").strip()
@@ -61,10 +65,12 @@ class RagilHandler(BaseHandler):
                     raise Exception()
 
             except Exception:
-                context.bot.send_message(chat_id=update.effective_chat.id, text="err or invalid value (z, x, 0, 16-32)")            
+                context.bot.send_message(
+                    chat_id=update.effective_chat.id, text="err or invalid value (z, x, 0, 16-32)")
 
         else:
-            context.bot.send_message(chat_id=update.effective_chat.id, text="invalid command")
+            context.bot.send_message(
+                chat_id=update.effective_chat.id, text="invalid command")
 
 
 def startRagil():
@@ -74,7 +80,7 @@ def startRagil():
     a = secrets.get("ac")
 
     ac = AC(a["ip"])
-    tradfri = Tradfri(g["ip"], g["identity"], g["psk"])    
+    tradfri = Tradfri(g["ip"], g["identity"], g["psk"])
     handler = RagilHandler(tradfri, g["light_id"], ac)
 
     auth_middleware = AuthMiddleware(*t["allowed_ids"])
