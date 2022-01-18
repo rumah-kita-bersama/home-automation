@@ -1,6 +1,6 @@
 #include <ArduinoOTA.h>
 
-// OTA only available on WEBSERVER because 
+// OTA only available on WEBSERVER because
 // long poll Telegram blocks `loop` function
 void setupOTA() {
   ArduinoOTA.onStart([]() {
