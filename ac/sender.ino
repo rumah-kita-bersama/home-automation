@@ -23,9 +23,9 @@ void sendCommand(int cmd) {
   IrSender.mark(K_HEADER_MARK);
   IrSender.space(K_HEADER_SPACE);
 
-  // cmd < 0 off
+  // cmd == 0 off
   // 16 <= cmd <= 31
-  if (cmd >= 0 && !(cmd >= 16 && cmd <= 31)) {
+  if (cmd != 0 && (cmd < 16 || cmd > 31)) {
     return;
   }
 

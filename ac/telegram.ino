@@ -1,3 +1,5 @@
+#ifdef ENABLE_TELEGRAM
+
 #include <WiFiClientSecure.h>
 #include <UniversalTelegramBot.h>
 
@@ -36,11 +38,13 @@ void handleNewMessages(int numNewMessages) {
     if (bot.messages[i].chat_id.equals(ALLOWED_CHAT_ID)) {
       int cmd = bot.messages[i].text.toInt();      
       if (cmd < 0 || (cmd >= 16 && cmd <= 31)) {       
-       sendCommand(cmd);
-       bot.sendSimpleMessage(bot.messages[i].chat_id, "OK", "");
-     } else {
-       bot.sendSimpleMessage(bot.messages[i].chat_id, "Invalid", "");
-     }
+      sendCommand(cmd);
+      bot.sendSimpleMessage(bot.messages[i].chat_id, "OK", "");
+    } else {
+      bot.sendSimpleMessage(bot.messages[i].chat_id, "Invalid", "");
+    }
     }
   }
 }
+
+#endif
