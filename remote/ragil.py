@@ -54,7 +54,7 @@ class RagilHandler(BaseHandler):
             try:
                 val_t = text.removeprefix("ac").strip()
                 if val_t == "z":
-                    val = 16
+                    val = 26
                 elif val_t == "x":
                     val = 0
                 else:
