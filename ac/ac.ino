@@ -1,39 +1,38 @@
-#define ENABLE_WEBSERVER 1
-#define ENABLE_TELEGRAM 0
+// uncomment to enable
+#define ENABLE_WEBSERVER
+//#define ENABLE_TELEGRAM
+//#define ENABLE_REPLAY
 
 void setup() {
   Serial.begin(115200);
   
   connectWifi();
-  setupSender();
+  setupSender(); 
   
-  #ifdef ENABLE_WEBSERVER
-  if (ENABLE_WEBSERVER) {
-    setupOTA();
-    setupWebserver();
-  }
+  #ifdef ENABLE_WEBSERVER 
+  setupOTA();
+  setupWebserver();
   #endif
 
+  // OTA is not working on Telegram because it
+  // would use long poll for retrieving msg and blocks the OTA 
   #ifdef ENABLE_TELEGRAM
-  if (ENABLE_TELEGRAM) {
-    setupTelegram();
-  }
+  setupTelegram();
   #endif
 }
 
-
-void loop() {  
-
-  #ifdef ENABLE_WEBSERVER
-  if (ENABLE_WEBSERVER) {
-    handleOTA();
-    handleClientWebserver(); 
-  }
+void loop() { 
+  #ifdef ENABLE_WEBSERVER  
+  handleOTA();
+  handleClientWebserver();    
   #endif
 
   #ifdef ENABLE_TELEGRAM
-  if (ENABLE_TELEGRAM) {
-    getUpdatesLongPollTelegram();
-  }
+  getUpdatesLongPollTelegram();
+  #endif
+
+  #ifdef ENABLE_REPLAY
+  sendReplay();
+  delay(2000);
   #endif
 }

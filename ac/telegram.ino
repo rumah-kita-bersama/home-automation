@@ -37,12 +37,12 @@ void handleNewMessages(int numNewMessages) {
   for (int i = 0; i < numNewMessages; i++) {  
     if (bot.messages[i].chat_id.equals(ALLOWED_CHAT_ID)) {
       int cmd = bot.messages[i].text.toInt();      
-      if (cmd < 0 || (cmd >= 16 && cmd <= 31)) {       
-      sendCommand(cmd);
-      bot.sendSimpleMessage(bot.messages[i].chat_id, "OK", "");
+      if (cmd < 0 || (cmd >= 17 && cmd <= 30)) {     
+        sendCommand(0, 0, 30, 0, 0, 0, 0);  // only support changing temp 
+        bot.sendSimpleMessage(bot.messages[i].chat_id, "OK", "");
     } else {
-      bot.sendSimpleMessage(bot.messages[i].chat_id, "Invalid", "");
-    }
+        bot.sendSimpleMessage(bot.messages[i].chat_id, "Invalid", "");
+      }
     }
   }
 }
