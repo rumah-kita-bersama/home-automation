@@ -49,7 +49,7 @@ void handle() {
     return;
   }
   int swing = server.arg("swing").toInt();
-  if (swing < 0 || swing > 1) {
+  if (swing < 0 || swing > 2) {
    retBadReq();
    return;
   }
