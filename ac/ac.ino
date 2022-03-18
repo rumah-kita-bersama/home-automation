@@ -19,6 +19,9 @@ void setup() {
   #ifdef ENABLE_TELEGRAM
   setupTelegram();
   #endif
+
+  // Turn off built-in LED
+  pinMode(D0, OUTPUT);
 }
 
 void loop() { 
@@ -35,4 +38,7 @@ void loop() {
   sendReplay();
   delay(2000);
   #endif
+
+  // Turn off built-in LED
+  digitalWrite(D0, HIGH); 
 }
