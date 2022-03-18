@@ -6,6 +6,17 @@ from common import (
     load_secrets,
 )
 
+from const import (
+    AC_FAN_1,
+    AC_FAN_AUTO,
+    AC_MODE_AUTO,
+    AC_MODE_COOL,
+    AC_MODE_FAN,
+    AC_SWING_NO_OP,
+    AC_SWING_OFF,
+    AC_SWING_ON
+)
+
 import requests
 
 RAGIL_K = "ragil"
@@ -15,9 +26,16 @@ class AC:
     def __init__(self, ip):
         self.ip = ip
 
-    def set_temp(self, temp):
+    def set_cmd(self, temp=27, off=False, fix=False, mode=AC_MODE_AUTO, fan=AC_FAN_AUTO, swing=AC_SWING_NO_OP):
         url = "http://{}/".format(self.ip)
-        r = requests.get(url, params={"cmd": temp})
+        r = requests.get(url, params={
+            "off": 1 if off else 0,
+            "fix": 1 if fix else 0,
+            "mode": mode,
+            "temp": temp,
+            "fan": fan,
+            "swing": swing,
+        })
         return r.status_code == 200
 
 
@@ -52,15 +70,25 @@ class RagilHandler(BaseHandler):
 
         elif text.startswith("ac"):
             try:
-                val_t = text.removeprefix("ac").strip()
+                val_t, ok = text.removeprefix("ac").strip(), False
                 if val_t == "z":
-                    val = 26
+                    ok = self.ac.set_cmd(
+                        temp=27, mode=AC_MODE_COOL, fan=AC_FAN_1)
                 elif val_t == "x":
-                    val = 0
+                    ok = self.ac.set_cmd(off=True)
+                elif val_t == "f":
+                    ok = self.ac.set_cmd(mode=AC_MODE_FAN, fan=AC_FAN_1)
+                elif val_t == "sz":
+                    ok = self.ac.set_cmd(swing=AC_SWING_ON)
+                elif val_t == "sx":
+                    ok = self.ac.set_cmd(swing=AC_SWING_OFF)
+                elif val_t == "v":
+                    ok = self.ac.set_cmd(fix=True)
                 else:
                     val = int(val_t)
+                    ok = self.ac.set_cmd(
+                        temp=val, mode=AC_MODE_COOL, fan=AC_FAN_1)
 
-                ok = self.ac.set_temp(val)
                 if not ok:
                     raise Exception()
 
@@ -73,7 +101,7 @@ class RagilHandler(BaseHandler):
                 chat_id=update.effective_chat.id, text="invalid command")
 
 
-def startRagil():
+def start_ragil():
     secrets = load_secrets(RAGIL_K)
     g = secrets.get("gateway")
     t = secrets.get("telegram")

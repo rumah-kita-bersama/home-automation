@@ -1,11 +1,12 @@
-from fata import startFata
-from ragil import startRagil
+from fata import start_fata
+from ragil import start_ragil
 
 
 def main():
-    startFata()
-    startRagil()
-    
+    start_fata()
+    start_ragil()
+
+
 if __name__ == "__main__":
     print("Starting...")
     main()

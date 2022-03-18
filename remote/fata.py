@@ -3,10 +3,11 @@ from common import (
     BaseHandler,
     TelegramBot,
     Tradfri,
-    load_secrets,    
+    load_secrets,
 )
 
 FATA_K = "fata"
+
 
 class FataLightHandler(BaseHandler):
 
@@ -15,19 +16,21 @@ class FataLightHandler(BaseHandler):
         self.light_id = light_id
 
     def handle(self, update, context):
-        text = self._get_text(update)        
+        text = self._get_text(update)
         if not text.startswith("light"):
             return
-        
+
         try:
             val = int(text.removeprefix("light "))
         except Exception:
-            context.bot.send_message(chat_id=update.effective_chat.id, text="invalid value (valid range: 0-254)")
+            context.bot.send_message(
+                chat_id=update.effective_chat.id, text="invalid value (valid range: 0-254)")
             return
 
         self.tradfri.set_light_dimmer_value(int(self.light_id), val)
 
-def startFata():
+
+def start_fata():
     secrets = load_secrets(FATA_K)
     g = secrets.get("gateway")
     t = secrets.get("telegram")
