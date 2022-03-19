@@ -13,7 +13,7 @@
 #define K_FOOTER_MARK 560
 #define K_FOOTER_SPACE 7450
 
-#define EMIT_PIN D0
+#define EMIT_PIN D1
  
 #define MODE_AUTO 0
 #define MODE_COOL 1
