@@ -1,17 +1,17 @@
 import os
 import yaml
 
-from fata import start_fata
-from ragil import start_ragil
-from door_bell import start_door_bell
+import fata
+import ragil
+import doorbell
 
 
 def main():
     secrets = load_secrets("secrets.yaml")
 
-    start_fata(secrets.get("fata"))
-    start_ragil(secrets.get("ragil"))
-    start_door_bell(secrets.get("doorbell"))
+    fata.start(secrets.get("fata"))
+    ragil.start(secrets.get("ragil"))
+    doorbell.start(secrets.get("doorbell"))
 
 
 def load_secrets(filename):

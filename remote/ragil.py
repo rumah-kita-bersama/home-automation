@@ -2,7 +2,8 @@ from common import (
     AuthMiddleware,
     BaseHandler,
     TelegramBot,
-    Tradfri
+    Tradfri,
+    AirConditioner
 )
 
 from const import (
@@ -16,26 +17,7 @@ from const import (
     AC_SWING_ON
 )
 
-import requests
-
 RAGIL_K = "ragil"
-
-
-class AC:
-    def __init__(self, ip):
-        self.ip = ip
-
-    def set_cmd(self, temp=27, off=False, fix=False, mode=AC_MODE_AUTO, fan=AC_FAN_AUTO, swing=AC_SWING_NO_OP):
-        url = "http://{}/".format(self.ip)
-        r = requests.get(url, params={
-            "off": 1 if off else 0,
-            "fix": 1 if fix else 0,
-            "mode": mode,
-            "temp": temp,
-            "fan": fan,
-            "swing": swing,
-        })
-        return r.status_code == 200
 
 
 class RagilHandler(BaseHandler):
@@ -100,12 +82,12 @@ class RagilHandler(BaseHandler):
                 chat_id=update.effective_chat.id, text="invalid command")
 
 
-def start_ragil(secrets):
+def start(secrets):
     g = secrets.get("gateway")
     t = secrets.get("telegram")
     a = secrets.get("ac")
 
-    ac = AC(a["ip"])
+    ac = AirConditioner(a["ip"])
     tradfri = Tradfri(g["ip"], g["identity"], g["psk"])
     handler = RagilHandler(tradfri, g["light_id"], ac)
 

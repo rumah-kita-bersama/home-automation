@@ -43,7 +43,7 @@ class DoorBellTelegramNotifier:
         res.raise_for_status()
 
 
-def start_door_bell(secret):
+def start(secret):
     pi = pigpio.pi()
     gpio_pin = 4
 

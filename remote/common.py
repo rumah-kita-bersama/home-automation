@@ -1,11 +1,26 @@
-import json
-import os
+import const
 
+import requests
 from pytradfri import Gateway
 from pytradfri.api.libcoap_api import APIFactory
-from telegram.ext import Updater
-from telegram.ext import MessageHandler, Filters
-import yaml
+from telegram.ext import Filters, MessageHandler, Updater
+
+
+class AirConditioner:
+    def __init__(self, ip):
+        self.ip = ip
+
+    def set_cmd(self, temp=27, off=False, fix=False, mode=const.AC_MODE_AUTO, fan=const.AC_FAN_AUTO, swing=const.AC_SWING_NO_OP):
+        url = "http://{}/".format(self.ip)
+        r = requests.get(url, params={
+            "off": 1 if off else 0,
+            "fix": 1 if fix else 0,
+            "mode": mode,
+            "temp": temp,
+            "fan": fan,
+            "swing": swing,
+        })
+        return r.status_code == 200
 
 
 class Tradfri:
@@ -39,12 +54,19 @@ class Tradfri:
 class TelegramBot:
     def __init__(self, token):
         self.updater = Updater(token=token, use_context=True)
+        self._text_handlers = []
 
     def start(self):
+        self.updater.dispatcher.add_handler(
+            MessageHandler(Filters.text, self._handle_text))
         self.updater.start_polling(drop_pending_updates=True)
 
     def add_handler(self, handler):
-        handler.register(self.updater.dispatcher)
+        self._text_handlers.append(handler)
+
+    def _handle_text(self, update, context):
+        for handler in self._text_handlers:
+            handler.handle(update, context)
 
 
 def only_allow(allowed_ids):
@@ -77,9 +99,6 @@ class AuthMiddleware:
 class BaseHandler:
     def handle(self, update, context):
         raise NotImplementedError()
-
-    def register(self, dispatcher):
-        dispatcher.add_handler(MessageHandler(Filters.text, self.handle))
 
     def _get_text(self, update):
         if update.channel_post:
