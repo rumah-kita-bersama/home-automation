@@ -2,8 +2,7 @@ from common import (
     AuthMiddleware,
     BaseHandler,
     TelegramBot,
-    Tradfri,
-    load_secrets,
+    Tradfri
 )
 
 from const import (
@@ -101,8 +100,7 @@ class RagilHandler(BaseHandler):
                 chat_id=update.effective_chat.id, text="invalid command")
 
 
-def start_ragil():
-    secrets = load_secrets(RAGIL_K)
+def start_ragil(secrets):
     g = secrets.get("gateway")
     t = secrets.get("telegram")
     a = secrets.get("ac")

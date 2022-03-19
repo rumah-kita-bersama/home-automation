@@ -1,12 +1,11 @@
+import json
+import os
+
 from pytradfri import Gateway
 from pytradfri.api.libcoap_api import APIFactory
 from telegram.ext import Updater
 from telegram.ext import MessageHandler, Filters
-
-import json
-import os
-
-SECRETS_F = "secrets.json"
+import yaml
 
 
 class Tradfri:
@@ -87,9 +86,3 @@ class BaseHandler:
             return update.channel_post.text
 
         return update.message.text
-
-
-def load_secrets(key):
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), SECRETS_F)
-    with open(path) as f:
-        return json.loads(f.read()).get(key)

@@ -1,16 +1,7 @@
-from common import (
-    AuthMiddleware,
-    BaseHandler,
-    TelegramBot,
-    Tradfri,
-    load_secrets,
-)
-
-FATA_K = "fata"
+from common import AuthMiddleware, BaseHandler, TelegramBot, Tradfri
 
 
 class FataLightHandler(BaseHandler):
-
     def __init__(self, tradfri, light_id):
         self.tradfri = tradfri
         self.light_id = light_id
@@ -30,8 +21,7 @@ class FataLightHandler(BaseHandler):
         self.tradfri.set_light_dimmer_value(int(self.light_id), val)
 
 
-def start_fata():
-    secrets = load_secrets(FATA_K)
+def start_fata(secrets):
     g = secrets.get("gateway")
     t = secrets.get("telegram")
 
