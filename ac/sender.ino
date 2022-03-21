@@ -101,7 +101,7 @@ int sendCommand(
 
   // temp
   byte t_temp = (temp - 17) % (30 - 17 + 1);
-  data[5] |= (t_temp - 17) << 4;
+  data[5] |= t_temp << 4;
 
   // fan
   byte t_fan = fan;  
