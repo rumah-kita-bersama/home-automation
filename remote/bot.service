@@ -1,6 +1,6 @@
 [Unit]
 Description=Kermit Bot Service
-After=network.target
+After=network.target pigpiod.service
 StartLimitIntervalSec=0
 
 [Service]
