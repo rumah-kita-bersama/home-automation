@@ -8,11 +8,8 @@ from common import (
 
 from const import (
     AC_FAN_1,
-    AC_FAN_AUTO,
-    AC_MODE_AUTO,
     AC_MODE_COOL,
     AC_MODE_FAN,
-    AC_SWING_NO_OP,
     AC_SWING_OFF,
     AC_SWING_ON
 )
@@ -75,7 +72,7 @@ class RagilHandler(BaseHandler):
 
             except Exception:
                 context.bot.send_message(
-                    chat_id=update.effective_chat.id, text="err or invalid value (z, x, 0, 16-32)")
+                    chat_id=update.effective_chat.id, text="err or invalid value")
 
         else:
             context.bot.send_message(
