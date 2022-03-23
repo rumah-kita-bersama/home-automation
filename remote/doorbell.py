@@ -1,5 +1,6 @@
 import pigpio
 import requests
+import time
 
 
 class DoorBell:
@@ -21,7 +22,8 @@ class DoorBell:
     def listen(self):
         self.pi.callback(self.pin, pigpio.EITHER_EDGE, self._callback)
 
-    def _callback(self, pin, value, ts):
+    def _callback(self, pin, value, tick):
+        ts = time.time_ns() // 1000
         if ts - self._last_event_ts >= self._event_ts_threshold_micros:
             self._last_event_ts = ts
             self._notify_subscribers()
