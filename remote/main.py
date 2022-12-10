@@ -1,7 +1,6 @@
 import os
 import yaml
 
-import fata
 import ragil
 import doorbell
 
@@ -9,7 +8,6 @@ import doorbell
 def main():
     secrets = load_secrets("secrets.yaml")
 
-    fata.start(secrets.get("fata"))
     ragil.start(secrets.get("ragil"))
     doorbell.start(secrets.get("doorbell"))
 
