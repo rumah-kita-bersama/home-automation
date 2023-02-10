@@ -23,43 +23,13 @@ void handle() {
    retBadReq();
    return;
   }
-  
-  if (!server.hasArg("fan")){
-    retBadReq();
-    return;
-  }
-  int fan = server.arg("fan").toInt();
-  if (fan < 0 || fan > 5) {
-   retBadReq();
-   return;
-  }
-  
-  if (!server.hasArg("mode")){
-    retBadReq();
-    return;
-  }
-  int mode_ = server.arg("mode").toInt();
-  if (mode_ < 0 || mode_ > 3) {
-   retBadReq();
-   return;
-  }
-  
+
   if (!server.hasArg("swing")){
     retBadReq();
     return;
   }
   int swing = server.arg("swing").toInt();
   if (swing < 0 || swing > 2) {
-   retBadReq();
-   return;
-  }
-  
-  if (!server.hasArg("fix")){
-    retBadReq();
-    return;
-  }
-  int fix = server.arg("fix").toInt();
-  if (fix < 0 || fix > 1) {
    retBadReq();
    return;
   }
@@ -74,7 +44,7 @@ void handle() {
    return;
   }
   
-  int code = sendCommand(off, fix, temp, mode_, fan, swing, 0);
+  int code = sendCommand(off, temp, swing);
   if (code != 0) {
    retBadReq();
    return;
