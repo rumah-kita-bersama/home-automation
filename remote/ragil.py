@@ -6,14 +6,6 @@ from common import (
     AirConditioner
 )
 
-from const import (
-    AC_FAN_1,
-    AC_MODE_COOL,
-    AC_MODE_FAN,
-    AC_SWING_OFF,
-    AC_SWING_ON
-)
-
 RAGIL_K = "ragil"
 
 
@@ -50,22 +42,15 @@ class RagilHandler(BaseHandler):
             try:
                 val_t, ok = text.removeprefix("ac").strip(), False
                 if val_t == "z":
-                    ok = self.ac.set_cmd(
-                        temp=27, mode=AC_MODE_COOL, fan=AC_FAN_1)
+                    ok = self.ac.set_cmd(temp=26)
                 elif val_t == "x":
                     ok = self.ac.set_cmd(off=True)
-                elif val_t == "f":
-                    ok = self.ac.set_cmd(mode=AC_MODE_FAN, fan=AC_FAN_1)
                 elif val_t == "sz":
-                    ok = self.ac.set_cmd(swing=AC_SWING_ON)
+                    ok = self.ac.set_cmd(swing=True)
                 elif val_t == "sx":
-                    ok = self.ac.set_cmd(swing=AC_SWING_OFF)
-                elif val_t == "v":
-                    ok = self.ac.set_cmd(fix=True)
+                    ok = self.ac.set_cmd(swing=False)
                 else:
-                    val = int(val_t)
-                    ok = self.ac.set_cmd(
-                        temp=val, mode=AC_MODE_COOL, fan=AC_FAN_1)
+                    ok = self.ac.set_cmd(temp=int(val_t))
 
                 if not ok:
                     raise Exception()

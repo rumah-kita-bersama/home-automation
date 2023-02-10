@@ -1,5 +1,3 @@
-import const
-
 import requests
 from pytradfri import Gateway
 from pytradfri.api.libcoap_api import APIFactory
@@ -10,15 +8,12 @@ class AirConditioner:
     def __init__(self, ip):
         self.ip = ip
 
-    def set_cmd(self, temp=27, off=False, fix=False, mode=const.AC_MODE_AUTO, fan=const.AC_FAN_AUTO, swing=const.AC_SWING_NO_OP):
+    def set_cmd(self, temp=26, off=False, swing=True):
         url = "http://{}/".format(self.ip)
         r = requests.get(url, params={
             "off": 1 if off else 0,
-            "fix": 1 if fix else 0,
-            "mode": mode,
+            "swing": 1 if swing else 0,
             "temp": temp,
-            "fan": fan,
-            "swing": swing,
         })
         return r.status_code == 200
 
