@@ -20,7 +20,7 @@ void setupSender() {
   IrSender.begin(EMIT_PIN, 0, 0);
 }
 
-int sendCommand(bool off, byte temp, byte swing) {
+int sendCommand(bool off, byte temp, byte swing, byte fan) {
   // base command
   byte data[18] = {0x23, 0xcb, 0x26, 0x01, 0x00, 0x00, 0x18, 0x00, 0x36, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
@@ -31,14 +31,17 @@ int sendCommand(bool off, byte temp, byte swing) {
   }
 
   // temp
-  if (temp < 17 || temp > 30) {
+  if (temp < 18 || temp > 30) {
     return -1;
   }
   data[7] = temp - 16;
 
 
-  // fan speed 3
-  data[9] = (byte) 0x03;
+  // fan speed, either 2 or 3
+  data[9] = (byte) 0x02;
+  if (fan) {
+    data[9] = (byte) 0x03;  
+  }
 
   // swing auto/off
   if (swing) {

@@ -29,7 +29,7 @@ void handle() {
     return;
   }
   int swing = server.arg("swing").toInt();
-  if (swing < 0 || swing > 2) {
+  if (swing < 0 || swing > 1) {
    retBadReq();
    return;
   }
@@ -43,8 +43,18 @@ void handle() {
    retBadReq();
    return;
   }
+
+  if (!server.hasArg("fan")){
+    retBadReq();
+    return;
+  }
+  int fan = server.arg("fan").toInt();
+  if (fan < 0 || fan > 1) {
+   retBadReq();
+   return;
+  }
   
-  int code = sendCommand(off, temp, swing);
+  int code = sendCommand(off, temp, swing, fan);
   if (code != 0) {
    retBadReq();
    return;
