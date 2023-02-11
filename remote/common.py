@@ -8,11 +8,12 @@ class AirConditioner:
     def __init__(self, ip):
         self.ip = ip
 
-    def set_cmd(self, temp=26, off=False, swing=True):
+    def set_cmd(self, temp=26, off=False, swing=True, fan=True):
         url = "http://{}/".format(self.ip)
         r = requests.get(url, params={
             "off": 1 if off else 0,
             "swing": 1 if swing else 0,
+            "fan": 1 if fan else 0,
             "temp": temp,
         })
         return r.status_code == 200

@@ -40,18 +40,27 @@ class RagilHandler(BaseHandler):
 
         elif text.startswith("ac"):
             try:
-                val_t, ok = text.removeprefix("ac").strip(), False
-                if val_t == "z":
-                    ok = self.ac.set_cmd(temp=26)
-                elif val_t == "x":
-                    ok = self.ac.set_cmd(off=True)
-                elif val_t == "sz":
-                    ok = self.ac.set_cmd(swing=True)
-                elif val_t == "sx":
-                    ok = self.ac.set_cmd(swing=False)
-                else:
-                    ok = self.ac.set_cmd(temp=int(val_t))
+                val_t, ok = text.removeprefix("ac").strip().split(), True
+                kwargs = {
+                    "temp": 26,
+                    "off": False,
+                    "swing": True,
+                    "fan": True,
+                }
+                for val_x in val_t:
+                    if not ok:
+                        break
 
+                    if val_x == "x":
+                        kwargs["off"] = True
+                    elif val_x == "sx":
+                        kwargs["swing"] = False
+                    elif val_x == "fx":
+                        kwargs["fan"] = False
+                    else:
+                        kwargs["temp"] = int(val_x)
+
+                ok = self.ac.set_cmd(**kwargs)
                 if not ok:
                     raise Exception()
 
