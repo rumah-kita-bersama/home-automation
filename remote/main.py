@@ -3,6 +3,7 @@ import yaml
 
 import ragil
 import doorbell
+import machine
 
 
 def main():
@@ -10,6 +11,7 @@ def main():
 
     ragil.start(secrets.get("ragil"))
     doorbell.start(secrets.get("doorbell"))
+    machine.start(secrets.get("machine"))
 
 
 def load_secrets(filename):

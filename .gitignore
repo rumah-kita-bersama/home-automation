@@ -6,3 +6,4 @@ venv/
 secrets.json
 *.pyc
 __pycache__/
+tinytuya.json
