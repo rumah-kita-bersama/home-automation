@@ -8,7 +8,8 @@ import tuyapower
 class WashingMachine:
     SCAN_PERIOD = 30 * 60
     SUM_PERIOD = 2 * 60
-    TEXT = "Mesin cuci sudah selesai. Jangan lupa dijemur!"
+    TEXT_START = "Nyuci trooos"
+    TEXT_FINISH = "Mesin cuci sudah selesai. Jangan lupa dijemur!"
 
     class TuyaPowerDevice:
         def __init__(self, id, ip, key, ver):
@@ -58,10 +59,12 @@ class WashingMachine:
                 total = sum(nums)
                 if total == 0 and running:
                     running = False
-                    self._send_to_telegram(self.TEXT)
+                    self._send_to_telegram(self.TEXT_FINISH)
                 elif total == 0 and self._should_rescan(ts):
                     self._rescan(ts)
                 elif total > 0:
+                    if not running:
+                        self._send_to_telegram(self.TEXT_START)
                     running = True
 
                 curr = 0
@@ -79,7 +82,14 @@ class WashingMachine:
 
 
 def start(secrets):
-    bot_token, channel_id = secrets["telegram"]["token"], secrets["telegram"]["channel_id"]
-    device_id, device_key, device_ver = secrets["device"]["id"], secrets["device"]["key"], secrets["device"]["ver"]
+    bot_token, channel_id = (
+        secrets["telegram"]["token"],
+        secrets["telegram"]["channel_id"],
+    )
+    device_id, device_key, device_ver = (
+        secrets["device"]["id"],
+        secrets["device"]["key"],
+        secrets["device"]["ver"],
+    )
 
     WashingMachine(device_id, device_key, device_ver, bot_token, channel_id).start()
