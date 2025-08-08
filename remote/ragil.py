@@ -42,7 +42,7 @@ class RagilHandler(BaseHandler):
             try:
                 val_t, ok = text.removeprefix("ac").strip().split(), True
                 kwargs = {
-                    "temp": 26,
+                    "temp": 25,
                     "off": False,
                     "swing": True,
                     "fan": True,

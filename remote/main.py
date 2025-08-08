@@ -10,8 +10,12 @@ def main():
     secrets = load_secrets("secrets.yaml")
 
     ragil.start(secrets.get("ragil"))
-    doorbell.start(secrets.get("doorbell"))
-    machine.start(secrets.get("machine"))
+    
+    # disable doorbel, not used
+    # doorbell.start(secrets.get("doorbell"))
+    
+    # disable machine, not used
+    # machine.start(secrets.get("machine"))
 
 
 def load_secrets(filename):
