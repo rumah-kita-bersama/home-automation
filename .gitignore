@@ -7,3 +7,9 @@ secrets.json
 *.pyc
 __pycache__/
 tinytuya.json
+
+# imei
+*/**/dump.txt
+*/**/image.png
+*/**/image-bw.png
+*/**/final-img.png

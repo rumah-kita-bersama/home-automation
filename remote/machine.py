@@ -1,5 +1,5 @@
 import time
-from threading import Thread, Event
+from threading import Thread
 
 import requests
 import tuyapower
@@ -7,7 +7,7 @@ import tuyapower
 
 class WashingMachine:
     SCAN_PERIOD = 30 * 60
-    SUM_PERIOD = 2 * 60
+    SUM_PERIOD = 12 * 60
     TEXT_START = "Nyuci trooos"
     TEXT_FINISH = "Mesin cuci sudah selesai. Jangan lupa dijemur!"
 

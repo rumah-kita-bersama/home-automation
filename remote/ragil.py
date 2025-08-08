@@ -1,19 +1,11 @@
-from common import (
-    AuthMiddleware,
-    BaseHandler,
-    TelegramBot,
-    Tradfri,
-    AirConditioner
-)
+from common import AuthMiddleware, BaseHandler, TelegramBot, TuyaBulb, AirConditioner
 
 RAGIL_K = "ragil"
 
 
 class RagilHandler(BaseHandler):
-
-    def __init__(self, tradfri, light_id, ac):
-        self.tradfri = tradfri
-        self.light_id = light_id
+    def __init__(self, bulb, ac):
+        self.bulb = bulb
         self.ac = ac
 
     def handle(self, update, context):
@@ -24,19 +16,24 @@ class RagilHandler(BaseHandler):
                 if val_t == "x":
                     val = 0
                 elif val_t == "m":
-                    val = 128
+                    val = 500
                 elif val_t == "h":
-                    val = 192
+                    val = 750
                 elif val_t == "l":
-                    val = 64
+                    val = 250
                 else:
                     val = int(val_t)
 
-                self.tradfri.set_light_dimmer_value(int(self.light_id), val)
+                if val == 0:
+                    self.bulb.turn_off()
+                else:
+                    self.bulb.set_brightness(val)
 
             except Exception as e:
                 context.bot.send_message(
-                    chat_id=update.effective_chat.id, text="err or invalid value (l, m, h, 0-254)" + str(e))
+                    chat_id=update.effective_chat.id,
+                    text="err or invalid value (l, m, h, 10-999)" + str(e),
+                )
 
         elif text.startswith("ac"):
             try:
@@ -66,21 +63,23 @@ class RagilHandler(BaseHandler):
 
             except Exception:
                 context.bot.send_message(
-                    chat_id=update.effective_chat.id, text="err or invalid value")
+                    chat_id=update.effective_chat.id, text="err or invalid value"
+                )
 
         else:
             context.bot.send_message(
-                chat_id=update.effective_chat.id, text="invalid command")
+                chat_id=update.effective_chat.id, text="invalid command"
+            )
 
 
 def start(secrets):
-    g = secrets.get("gateway")
+    g = secrets.get("bulb")
     t = secrets.get("telegram")
     a = secrets.get("ac")
 
     ac = AirConditioner(a["ip"])
-    tradfri = Tradfri(g["ip"], g["identity"], g["psk"])
-    handler = RagilHandler(tradfri, g["light_id"], ac)
+    bulb = TuyaBulb(g["ver"], g["id"], g["node_id"], g["key"], g["gw_id"])
+    handler = RagilHandler(bulb, ac)
 
     auth_middleware = AuthMiddleware(*t["allowed_ids"])
     auth_middleware.apply(handler)

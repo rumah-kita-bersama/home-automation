@@ -1,4 +1,6 @@
 import requests
+import tinytuya
+import tinytuya.core
 from pytradfri import Gateway
 from pytradfri.api.libcoap_api import APIFactory
 from telegram.ext import Filters, MessageHandler, Updater
@@ -10,13 +12,50 @@ class AirConditioner:
 
     def set_cmd(self, temp=26, off=False, swing=True, fan=True):
         url = "http://{}/".format(self.ip)
-        r = requests.get(url, params={
-            "off": 1 if off else 0,
-            "swing": 1 if swing else 0,
-            "fan": 1 if fan else 0,
-            "temp": temp,
-        })
+        r = requests.get(
+            url,
+            params={
+                "off": 1 if off else 0,
+                "swing": 1 if swing else 0,
+                "fan": 1 if fan else 0,
+                "temp": temp,
+            },
+        )
         return r.status_code == 200
+
+
+class TuyaBulb:
+    def __init__(self, version, dev_id, node_id, key, gw_id):
+        self.gateway = tinytuya.BulbDevice(
+            version=version, dev_id=gw_id, address="Auto", local_key=key
+        )
+        self.bulb = tinytuya.BulbDevice(
+            version=version,
+            dev_id=dev_id,
+            address="Auto",
+            local_key=key,
+            node_id=node_id,
+            parent=self.gateway,
+        )
+
+    def turn_off(self):
+        self.bulb.turn_off()
+
+    def set_brightness(self, brightness):
+        if brightness < 10 or brightness > 999:
+            return None
+
+        payload = self.bulb.generate_payload(
+            tinytuya.core.CONTROL,
+            {
+                self.bulb.DPS_INDEX_MODE[self.bulb.bulb_type]: self.bulb.DPS_MODE_WHITE,
+                self.bulb.DPS_INDEX_BRIGHTNESS[self.bulb.bulb_type]: brightness,
+                self.bulb.DPS_INDEX_COLOURTEMP[self.bulb.bulb_type]: 0,
+            },
+        )
+
+        self.bulb.turn_on(nowait=False)
+        return self.bulb._send_receive(payload, getresponse=False)
 
 
 class Tradfri:
@@ -54,7 +93,8 @@ class TelegramBot:
 
     def start(self):
         self.updater.dispatcher.add_handler(
-            MessageHandler(Filters.text, self._handle_text))
+            MessageHandler(Filters.text, self._handle_text)
+        )
         self.updater.start_polling(drop_pending_updates=True)
 
     def add_handler(self, handler):
