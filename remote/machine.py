@@ -7,7 +7,8 @@ import tuyapower
 
 class WashingMachine:
     SCAN_PERIOD = 30 * 60
-    SUM_PERIOD = 12 * 60
+    SUM_PERIOD = 10 * 60
+    ENABLE_TEXT_START = False
     TEXT_START = "Nyuci trooos"
     TEXT_FINISH = "Mesin cuci sudah selesai. Jangan lupa dijemur!"
 
@@ -63,7 +64,7 @@ class WashingMachine:
                 elif total == 0 and self._should_rescan(ts):
                     self._rescan(ts)
                 elif total > 0:
-                    if not running:
+                    if self.ENABLE_TEXT_START and not running:
                         self._send_to_telegram(self.TEXT_START)
                     running = True
 
