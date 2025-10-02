@@ -21,7 +21,7 @@ def main():
 
     # imei.start(secrets.get("ragil"))
 
-    cdc.start(secrets.get("ragil"))
+    cdc.start(secrets.get("cdc"))
 
 
 def load_secrets(filename):
