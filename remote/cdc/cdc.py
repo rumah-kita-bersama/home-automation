@@ -19,7 +19,6 @@ GECKO_PATH = "/snap/bin/firefox.geckodriver"  # https://stackoverflow.com/a/7834
 class CDC2BChecker:
 
     def __init__(self, target, token, chat_id):
-        self.target = target
         self.token = token
         self.chat_id = chat_id
 
@@ -59,9 +58,7 @@ class CDC2BChecker:
 
 def start(secrets):
     token, chat_id = secrets["telegram"]["token"], secrets["telegram"]["chat_id"]
-    target = secrets["target"]
-
-    CDC2BChecker(target, token, chat_id).start()
+    CDC2BChecker(token, chat_id).start()
 
 
 def main():
