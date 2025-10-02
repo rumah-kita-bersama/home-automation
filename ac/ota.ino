@@ -26,6 +26,8 @@ void setupOTA() {
       Serial.println("End Failed");
     }
   });
+  ArduinoOTA.setPort(8266);
+  ArduinoOTA.setPassword(OTA_PASSWORD);
   ArduinoOTA.begin();
 }
 

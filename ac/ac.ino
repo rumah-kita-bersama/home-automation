@@ -3,42 +3,56 @@
 //#define ENABLE_TELEGRAM
 //#define ENABLE_REPLAY
 
+
+// to measure voltage
+// ADC_MODE(ADC_VCC);
+
 void setup() {
   Serial.begin(115200);
-  
+
   connectWifi();
-  setupSender(); 
-  
-  #ifdef ENABLE_WEBSERVER 
-  setupOTA();
+  setupSender();
+
+#ifdef ENABLE_WEBSERVER
+  // disable OTA
+  // setupOTA();
   setupWebserver();
-  #endif
+#endif
 
-  // OTA is not working on Telegram because it
-  // would use long poll for retrieving msg and blocks the OTA 
-  #ifdef ENABLE_TELEGRAM
+// OTA is not working on Telegram because it
+// would use long poll for retrieving msg and blocks the OTA
+#ifdef ENABLE_TELEGRAM
   setupTelegram();
-  #endif
+#endif
 
-  // Turn off built-in LED
+  // turn off built-in LED
   pinMode(D0, OUTPUT);
 }
 
-void loop() { 
-  #ifdef ENABLE_WEBSERVER  
-  handleOTA();
-  handleClientWebserver();    
-  #endif
+void loop() {
+  reconnectWiFi();
 
-  #ifdef ENABLE_TELEGRAM
+#ifdef ENABLE_WEBSERVER
+  // disable OTA
+  // handleOTA(); 
+  handleClientWebserver();
+#endif
+
+#ifdef ENABLE_TELEGRAM
   getUpdatesLongPollTelegram();
-  #endif
+#endif
 
-  #ifdef ENABLE_REPLAY
+#ifdef ENABLE_REPLAY
   sendReplay();
   delay(2000);
-  #endif
+#endif
 
-  // Turn off built-in LED
-  digitalWrite(D0, HIGH); 
+  // turn off built-in LED
+  digitalWrite(D0, HIGH);
+
+  // to read voltage
+  // readVoltage();
+
+  // delay to save battery
+  delay(100);
 }
