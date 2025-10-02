@@ -19,9 +19,9 @@ def main():
 
     # machine.start(secrets.get("machine"))
 
-    # imei.start(secrets.get("imei"))
+    # imei.start(secrets.get("ragil"))
 
-    cdc.start()
+    cdc.start(secrets.get("ragil"))
 
 
 def load_secrets(filename):
