@@ -5,6 +5,7 @@ import requests
 import tuyapower
 
 
+# TODO: need to be updated
 class WashingMachine:
     SCAN_PERIOD = 30 * 60
     SUM_PERIOD = 10 * 60

@@ -88,7 +88,9 @@ class Tradfri:
 
 class TelegramBot:
     def __init__(self, token):
+        self.token = token
         self.updater = Updater(token=token, use_context=True)
+
         self._text_handlers = []
 
     def start(self):
@@ -99,6 +101,11 @@ class TelegramBot:
 
     def add_handler(self, handler):
         self._text_handlers.append(handler)
+
+    def send_message(self, chat_id, text):
+        url = "https://api.telegram.org/bot{}/sendMessage?text={}&chat_id={}"
+        res = requests.get(url.format(self.token, text, chat_id))
+        res.raise_for_status()
 
     def _handle_text(self, update, context):
         for handler in self._text_handlers:

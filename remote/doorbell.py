@@ -3,6 +3,7 @@ import requests
 import time
 
 
+# TODO: need to be updated
 class DoorBell:
     def __init__(self, pi, pin):
         self._last_event_ts = 0
@@ -52,5 +53,8 @@ def start(secret):
     doorbell = DoorBell(pi, gpio_pin)
     doorbell.listen()
 
-    bot_token, channel_id = secret["telegram"]["token"], secret["telegram"]["channel_id"]
+    bot_token, channel_id = (
+        secret["telegram"]["token"],
+        secret["telegram"]["channel_id"],
+    )
     notifier = DoorBellTelegramNotifier(bot_token, channel_id, doorbell)

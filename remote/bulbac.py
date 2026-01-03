@@ -1,9 +1,7 @@
-from common import AuthMiddleware, BaseHandler, TelegramBot, TuyaBulb, AirConditioner
-
-RAGIL_K = "ragil"
+from common import BaseHandler
 
 
-class RagilHandler(BaseHandler):
+class BulbACHandler(BaseHandler):
     def __init__(self, bulb, ac):
         self.bulb = bulb
         self.ac = ac
@@ -70,20 +68,3 @@ class RagilHandler(BaseHandler):
             context.bot.send_message(
                 chat_id=update.effective_chat.id, text="invalid command"
             )
-
-
-def start(secrets):
-    g = secrets.get("bulb")
-    t = secrets.get("telegram")
-    a = secrets.get("ac")
-
-    ac = AirConditioner(a["ip"])
-    bulb = TuyaBulb(g["ver"], g["id"], g["node_id"], g["key"], g["gw_id"])
-    handler = RagilHandler(bulb, ac)
-
-    auth_middleware = AuthMiddleware(*t["allowed_ids"])
-    auth_middleware.apply(handler)
-
-    bot = TelegramBot(t["token"])
-    bot.add_handler(handler)
-    bot.start()

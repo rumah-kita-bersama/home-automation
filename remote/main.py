@@ -1,27 +1,36 @@
 import os
 import yaml
 
-import ragil
-
-# import doorbell
-# import machine
-# import imei
-
-import cdc
+from acv2.acv2 import ACV2
+from cdc.cdc import CDC2BChecker
+from common import AuthMiddleware, TelegramBot, TuyaBulb, AirConditioner
+from bulbac import BulbACHandler
 
 
 def main():
     secrets = load_secrets("secrets.yaml")
 
-    ragil.start(secrets.get("ragil"))
+    t = secrets.get("telegram")
+    bot = TelegramBot(t["token"])
 
-    # doorbell.start(secrets.get("doorbell"))
+    b = secrets.get("bulb")
+    bulb = TuyaBulb(b["ver"], b["id"], b["node_id"], b["key"], b["gw_id"])
 
-    # machine.start(secrets.get("machine"))
+    # a = secrets.get("ac")
+    # ac = AirConditioner(a["ip"]) # old AC
 
-    # imei.start(secrets.get("ragil"))
+    ac = ACV2() # new AC
+    bulb_ac_handler = BulbACHandler(bulb, ac)
 
-    cdc.start(secrets.get("cdc"))
+    auth = AuthMiddleware(*t["allowed_ids"])
+    auth.apply(bulb_ac_handler)
+
+    bot.add_handler(bulb_ac_handler)
+    bot.start()
+
+    c = secrets.get("cdc")
+    cdc = CDC2BChecker(bot, c["telegram_channel_id"])
+    cdc.start()
 
 
 def load_secrets(filename):

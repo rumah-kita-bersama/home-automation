@@ -1,2 +1,3 @@
 .venv
 secrets.yaml
+geckodriver.log
