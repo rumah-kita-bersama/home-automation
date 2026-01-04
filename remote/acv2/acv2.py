@@ -1,3 +1,4 @@
+import time
 import pigpio
 
 ################
@@ -9,18 +10,18 @@ GPIO_PIN = 18
 
 # Carrier Constants
 K_CARRIER_KHZ = 38000
-K_CARRIER_PERIOD = 1000000 / K_CARRIER_KHZ  # ~26.315 microseconds
-K_CARRIER_ON = int(K_CARRIER_PERIOD / 2)
+K_CARRIER_PERIOD = (1000.0 * 1000.0) / K_CARRIER_KHZ  # ~26.315 microseconds
+K_CARRIER_ON = int(K_CARRIER_PERIOD / 2.0)
 K_CARRIER_OFF = K_CARRIER_PERIOD - K_CARRIER_ON
 
 # Protocol Timings (Microseconds)
-K_HEADER_MARK = 3400 #2400
-K_HEADER_SPACE = 1680 #1200
-K_BIT_MARK = 440 #250
-K_ONE_SPACE = 1260 #980
-K_ZERO_SPACE = 420 #250
-K_RPT_MARK = 440 #250
-K_RPT_SPACE = 12740 #9840
+K_HEADER_MARK = 3400
+K_HEADER_SPACE = 1680
+K_BIT_MARK = 440
+K_ONE_SPACE = 1260
+K_ZERO_SPACE = 420
+K_RPT_MARK = 440
+K_RPT_SPACE = 12740
 
 class ACV2:
     def __init__(self):
@@ -28,20 +29,38 @@ class ACV2:
 
         self.pi = pigpio.pi()
         self.pi.set_mode(self.pin, pigpio.OUTPUT)
-        self.pi.write(self.pin, 0) # Safety reset
+        self.pi.write(self.pin, 0)
+        self.pi.wave_clear()
 
-    def _build_byte_chain(self, carrier_id, byte):
-        chain = []
+        self._marks = {}
+        self._spaces = {}
+    
+    def _generate_mark(self, t):
+        cycles = int(round(t / K_CARRIER_PERIOD))
+        waveforms = []
+        for c in range(cycles):
+            waveforms.append(pigpio.pulse(1 << self.pin, 0, int(K_CARRIER_ON)))
+            waveforms.append(pigpio.pulse(0, 1 << self.pin, int(K_CARRIER_OFF)))
+        
+        self.pi.wave_add_generic(waveforms)
+        self._marks[t] = self.pi.wave_create()
+        return self._marks[t]
+
+    def _generate_space(self, t):
+        self.pi.wave_add_generic([pigpio.pulse(0, 1 << self.pin, t)])
+        self._spaces[t] = self.pi.wave_create()
+        return self._spaces[t]
+
+    def _build_byte_chain(self, byte):
+        q = []
         for i in range(8):
-            offset = 0
-            if i == 7:
-                offset = 100
+            mark_t = K_BIT_MARK
+            space_t = (K_ONE_SPACE if (byte >> i) & 1 else K_ZERO_SPACE)
 
-            m_count = int(K_BIT_MARK / K_CARRIER_PERIOD)
-            chain.extend([255, 0, carrier_id, 255, 1, m_count & 0xFF, m_count >> 8])
-            s_dur = (K_ONE_SPACE if (byte >> i) & 1 else K_ZERO_SPACE) - offset
-            chain.extend([255, 2, s_dur & 0xFF, s_dur >> 8])
-        return chain
+            q.append(mark_t)
+            q.append(space_t)
+
+        return q
 
     def set_cmd(self, temp=26, off=False, swing=True, fan=True):
         # --- 1. DATA PREPARATION ---
@@ -54,48 +73,43 @@ class ACV2:
         data[9] = 0x03 if fan else 0x02
         data[9] |= 0x78 if swing else 0x48
         data[17] = sum(data[:17]) & 0xFF
-
+        
         # --- 2. LOGIC PREPARATION ---
-        self.pi.wave_clear()
-        self.pi.wave_add_generic([
-            pigpio.pulse(1 << self.pin, 0, int(K_CARRIER_ON)),
-            pigpio.pulse(0, 1 << self.pin, int(K_CARRIER_OFF))
-        ])
-        carrier_id = self.pi.wave_create()
-
-        execution_queue = []
-
-        # Header
-        h_count = int(K_HEADER_MARK / K_CARRIER_PERIOD)
-        execution_queue.append([255, 0, carrier_id, 255, 1, h_count & 0xFF, h_count >> 8,
-                                255, 2, K_HEADER_SPACE & 0xFF, K_HEADER_SPACE >> 8])
-
-        # Bytes
+        q = [K_HEADER_MARK, K_HEADER_SPACE]
+        
         for byte in data:
-            execution_queue.append(self._build_byte_chain(carrier_id, byte))
-
-        # Tail
-        r_count = int(K_RPT_MARK / K_CARRIER_PERIOD)
-        f_count = int(K_BIT_MARK / K_CARRIER_PERIOD)
-        tail = [
-            255, 0, carrier_id, 255, 1, r_count & 0xFF, r_count >> 8,
-            255, 2, K_RPT_SPACE & 0xFF, K_RPT_SPACE >> 8,
-            255, 0, carrier_id, 255, 1, h_count & 0xFF, h_count >> 8,
-            255, 2, K_HEADER_SPACE & 0xFF, K_HEADER_SPACE >> 8
-        ]
-        for _ in range(2):
-            tail.extend([255, 0, carrier_id, 255, 1, f_count & 0xFF, f_count >> 8,
-                         255, 2, K_ONE_SPACE & 0xFF, K_ONE_SPACE >> 8])
-        tail.extend([255, 0, carrier_id, 255, 1, f_count & 0xFF, f_count >> 8])
-        execution_queue.append(tail)
-
+            q.extend(self._build_byte_chain(byte))
+        
+        q.extend(
+            [
+                K_RPT_MARK, K_RPT_SPACE,
+                K_HEADER_MARK, K_HEADER_SPACE,
+                K_BIT_MARK, K_ONE_SPACE,
+                K_BIT_MARK, K_ONE_SPACE,
+                K_BIT_MARK
+            ]
+        )
+       
         # --- 3. FINAL EXECUTION LOOP ---
         try:
-            for chain in execution_queue:
-                self.pi.wave_chain(chain)
-                # BUSY WAIT: No sleep, checks status as fast as possible
-                while self.pi.wave_tx_busy():
-                    pass
+            chain = []
+            for i, t in enumerate(q):
+                if i & 1:
+                    if t not in self._spaces:
+                        self._generate_space(t)
+                    chain.append(self._spaces[t])
+                else:
+                    if t not in self._marks:   
+                        self._generate_mark(t)
+                    chain.append(self._marks[t]) 
+
+            self.pi.wave_chain(chain)
+            while self.pi.wave_tx_busy():
+                time.sleep(0.001)
+        
+        except Exception as e:
+            print(e)
+        
         finally:
-            self.pi.write(self.pin, 0) # Safety: Ensure LED is OFF
-            self.pi.wave_delete(carrier_id)
+            self.pi.write(self.pin, 0)
+
