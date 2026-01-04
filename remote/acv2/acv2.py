@@ -107,9 +107,7 @@ class ACV2:
             while self.pi.wave_tx_busy():
                 time.sleep(0.001)
         
-        except Exception as e:
-            print(e)
-        
         finally:
             self.pi.write(self.pin, 0)
 
+        return True
