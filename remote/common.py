@@ -26,23 +26,29 @@ class AirConditioner:
 
 class TuyaBulb:
     def __init__(self, version, dev_id, node_id, key, gw_id):
-        self.gateway = tinytuya.BulbDevice(
-            version=version, dev_id=gw_id, address="Auto", local_key=key
-        )
-        self.bulb = tinytuya.BulbDevice(
-            version=version,
-            dev_id=dev_id,
-            address="Auto",
-            local_key=key,
-            node_id=node_id,
-            parent=self.gateway,
-        )
+        try:
+            self.gateway = tinytuya.BulbDevice(
+                version=version, dev_id=gw_id, address="Auto", local_key=key
+            )
+            self.bulb = tinytuya.BulbDevice(
+                version=version,
+                dev_id=dev_id,
+                address="Auto",
+                local_key=key,
+                node_id=node_id,
+                parent=self.gateway,
+            )
+        except:
+            self.bulb = None
 
     def turn_off(self):
+        if self.bulb is None:
+            return None
+
         self.bulb.turn_off()
 
     def set_brightness(self, brightness):
-        if brightness < 10 or brightness > 999:
+        if self.bulb is None or brightness < 10 or brightness > 999:
             return None
 
         payload = self.bulb.generate_payload(

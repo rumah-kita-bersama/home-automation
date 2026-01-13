@@ -80,20 +80,14 @@ class ACV2:
         for byte in data:
             q.extend(self._build_byte_chain(byte))
         
-        q.extend(
-            [
-                K_RPT_MARK, K_RPT_SPACE,
-                K_HEADER_MARK, K_HEADER_SPACE,
-                K_BIT_MARK, K_ONE_SPACE,
-                K_BIT_MARK, K_ONE_SPACE,
-                K_BIT_MARK
-            ]
-        )
+        q.extend([K_RPT_MARK, K_RPT_SPACE])
        
+        final_q = q + q + [K_BIT_MARK]
+
         # --- 3. FINAL EXECUTION LOOP ---
         try:
             chain = []
-            for i, t in enumerate(q):
+            for i, t in enumerate(final_q):
                 if i & 1:
                     if t not in self._spaces:
                         self._generate_space(t)
@@ -105,7 +99,7 @@ class ACV2:
 
             self.pi.wave_chain(chain)
             while self.pi.wave_tx_busy():
-                time.sleep(0.001)
+                time.sleep(0.002)
         
         finally:
             self.pi.write(self.pin, 0)
