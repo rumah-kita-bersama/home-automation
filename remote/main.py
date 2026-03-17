@@ -1,7 +1,7 @@
 import os
 import yaml
 
-from acv2.acv2 import ACV2
+from acv3.acv3 import ACV3
 from cdc.cdc import CDC2BChecker
 from common import AuthMiddleware, TelegramBot, TuyaBulb, AirConditioner
 from bulbac import BulbACHandler
@@ -19,7 +19,7 @@ def main():
     # a = secrets.get("ac")
     # ac = AirConditioner(a["ip"]) # old AC
 
-    ac = ACV2() # new AC
+    ac = ACV3() # new AC
     bulb_ac_handler = BulbACHandler(bulb, ac)
 
     auth = AuthMiddleware(*t["allowed_ids"])
@@ -28,9 +28,9 @@ def main():
     bot.add_handler(bulb_ac_handler)
     bot.start()
 
-    c = secrets.get("cdc")
-    cdc = CDC2BChecker(bot, c["telegram_channel_id"])
-    cdc.start()
+    # c = secrets.get("cdc")
+    # cdc = CDC2BChecker(bot, c["telegram_channel_id"])
+    # cdc.start()
 
 
 def load_secrets(filename):
