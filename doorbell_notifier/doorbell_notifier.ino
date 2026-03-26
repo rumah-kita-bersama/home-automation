@@ -1,5 +1,6 @@
 #include <ESP8266WiFi.h>
-#include <WiFiClientSecure.h> 
+#include <WiFiClientSecure.h>
+#include "secrets.h"
 
 #define NUM_RETRY 10
 #define HOST "api.telegram.org"
@@ -7,12 +8,14 @@
 #define BELL_PIN D8
 
 WiFiClientSecure httpsClient;
-const char fingerprint[] PROGMEM = "F2 AD 29 9C 34 48 DD 8D F4 CF 52 32 F6 57 33 68 2E 81 C1 90";
 unsigned long lastSentMillis = 0, lastMillis = 0, currentMillis = 0;
 bool isLastSentSet = false;
 char buf[1024];
 
 void setup() {
+  // Serial.begin(115200);
+  // delay(1000);
+
   connectWiFi();
   setupHttpsClient();
   pinMode(BELL_PIN, INPUT);
@@ -23,11 +26,12 @@ void connectWiFi() {
   while (WiFi.status() != WL_CONNECTED)
   {
     delay(500);
+    // Serial.printf("Connecting...\n");
   }
 }
 
 void setupHttpsClient() {
-  httpsClient.setFingerprint(fingerprint);
+  httpsClient.setInsecure();
   httpsClient.setTimeout(15000);
 }
 
@@ -39,8 +43,11 @@ void loop() {
     isLastSentSet = false;
   }
   
-  if (digitalRead(BELL_PIN)) {
+  int readValue = digitalRead(BELL_PIN);  
+  if (readValue) {
+    // Serial.printf("Signal %d...\n", readValue);
     if (shouldSend()) {
+      // Serial.printf("Sending...\n");    
       sendMessage("Assalamualaikum, ada orang di depan.");
       isLastSentSet = true;
       lastSentMillis = currentMillis;
@@ -48,6 +55,8 @@ void loop() {
   }
 
   lastMillis = currentMillis;
+
+  delay(50); // reduce power usage
 }
 
 bool shouldSend() {
@@ -68,6 +77,7 @@ int sendMessage(char* text) {
       break;
     }
 
+    // Serial.printf("Failed to connect HTTPS...\n");
     return -1;
   }
 
