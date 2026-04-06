@@ -70,13 +70,13 @@ class ACV3:
         data[0:5] = [0xAD, 0x51, 0x3C, 0xD9, 0x26]
 
         # Definitions based on ir_MitsubishiHeavy.h (88 bit struct)
-        # Let's map SwingH properly: If Off (0), then 0. If Auto (8) then SwingH1=0, SwingH2=2
-        swingh_val = 8 if swing else 0
+        # Map SwingH properly: Auto (8) if swing, else Middle (9)
+        swingh_val = 8 if swing else 9
         sH1 = swingh_val & 0x03
         sH2 = (swingh_val >> 2) & 0x03
         
-        # SwingV modes: Auto=0b100 (4), Off=0b000 (0)
-        swingv_val = 0b100 if swing else 0b000
+        # SwingV modes: Auto=0b100 (4), Highest=0b110 (6)
+        swingv_val = 0b100 if swing else 0b110
         sV5 = swingv_val & 0x01
         sV7 = (swingv_val >> 1) & 0x03
         
