@@ -65,12 +65,12 @@ class TuyaBulb:
 
 
 class TuyaAirPurifier:
-    def __init__(self, version, dev_id, address, key):
+    def __init__(self, version, dev_id, key):
         try:
             self.purifier = tinytuya.OutletDevice(
                 version=version,
                 dev_id=dev_id,
-                address=address,
+                address="Auto",
                 local_key=key,
             )
         except Exception:

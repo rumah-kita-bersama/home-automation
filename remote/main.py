@@ -22,7 +22,7 @@ def main():
     ac = ACV3() # new AC
 
     p = secrets.get("purifier")
-    purifier = TuyaAirPurifier(p["ver"], p["id"], p["address"], p["key"])
+    purifier = TuyaAirPurifier(p["ver"], p["id"], p["key"])
 
     bulb_ac_handler = BulbACHandler(bulb, ac, purifier)
 
