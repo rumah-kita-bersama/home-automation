@@ -64,6 +64,38 @@ class TuyaBulb:
         return self.bulb._send_receive(payload, getresponse=False)
 
 
+class TuyaAirPurifier:
+    def __init__(self, version, dev_id, address, key):
+        try:
+            self.purifier = tinytuya.OutletDevice(
+                version=version,
+                dev_id=dev_id,
+                address=address,
+                local_key=key,
+            )
+        except Exception:
+            self.purifier = None
+
+    def turn_on(self):
+        if self.purifier is None:
+            return None
+        self.purifier.set_value(1, True)
+
+    def turn_off(self):
+        if self.purifier is None:
+            return None
+        self.purifier.set_value(1, False)
+
+    def set_fan_speed(self, speed):
+        """ 
+        Controls the fan speed using DPS Index 4.
+        Typical string values might be "low", "mid", "high".
+        """
+        if self.purifier is None:
+            return None
+        self.purifier.set_value(4, speed)
+
+
 class Tradfri:
     def __init__(self, host, identity, psk):
         api_factory = APIFactory(host=host, psk_id=identity, psk=psk)

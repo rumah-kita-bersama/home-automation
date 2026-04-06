@@ -2,9 +2,10 @@ from common import BaseHandler
 
 
 class BulbACHandler(BaseHandler):
-    def __init__(self, bulb, ac):
+    def __init__(self, bulb, ac, purifier):
         self.bulb = bulb
         self.ac = ac
+        self.purifier = purifier
 
     def handle(self, update, context):
         text = self._get_text(update)
@@ -31,6 +32,31 @@ class BulbACHandler(BaseHandler):
                 context.bot.send_message(
                     chat_id=update.effective_chat.id,
                     text="err or invalid value (l, m, h, 10-999)" + str(e),
+                )
+
+        elif text.startswith("ap"):
+            try:
+                cmd = text.removeprefix("ap").strip()
+                if cmd == "x":
+                    self.purifier.turn_off()
+                elif cmd == "l":
+                    self.purifier.turn_on()
+                    self.purifier.set_fan_speed("low")
+                elif cmd == "m":
+                    self.purifier.turn_on()
+                    self.purifier.set_fan_speed("mid")
+                elif cmd == "h":
+                    self.purifier.turn_on()
+                    self.purifier.set_fan_speed("high")
+                else:
+                    context.bot.send_message(
+                        chat_id=update.effective_chat.id,
+                        text="invalid purifier cmd (x, l, m, h)",
+                    )
+            except Exception as e:
+                context.bot.send_message(
+                    chat_id=update.effective_chat.id,
+                    text="err controlling purifier: " + str(e),
                 )
 
         elif text.startswith("ac"):

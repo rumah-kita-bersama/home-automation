@@ -3,7 +3,7 @@ import yaml
 
 from acv3.acv3 import ACV3
 from cdc.cdc import CDC2BChecker
-from common import AuthMiddleware, TelegramBot, TuyaBulb, AirConditioner
+from common import AuthMiddleware, TelegramBot, TuyaBulb, AirConditioner, TuyaAirPurifier
 from bulbac import BulbACHandler
 
 
@@ -20,7 +20,11 @@ def main():
     # ac = AirConditioner(a["ip"]) # old AC
 
     ac = ACV3() # new AC
-    bulb_ac_handler = BulbACHandler(bulb, ac)
+
+    p = secrets.get("purifier")
+    purifier = TuyaAirPurifier(p["ver"], p["id"], p["address"], p["key"])
+
+    bulb_ac_handler = BulbACHandler(bulb, ac, purifier)
 
     auth = AuthMiddleware(*t["allowed_ids"])
     auth.apply(bulb_ac_handler)
