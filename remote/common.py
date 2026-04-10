@@ -95,6 +95,14 @@ class TuyaAirPurifier:
             return None
         self.purifier.set_value(4, speed)
 
+    def reset_filter(self):
+        """
+        Resets the filter using DPS Index 11.
+        """
+        if self.purifier is None:
+            return None
+        self.purifier.set_value(11, True)
+
 
 class Tradfri:
     def __init__(self, host, identity, psk):
