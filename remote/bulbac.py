@@ -48,12 +48,15 @@ class BulbACHandler(BaseHandler):
                 elif cmd == "h":
                     self.purifier.turn_on()
                     self.purifier.set_fan_speed("high")
+                elif cmd == "a":
+                    self.purifier.turn_on()
+                    self.purifier.set_fan_speed("auto")
                 elif cmd == "f":
                     self.purifier.reset_filter()
                 else:
                     context.bot.send_message(
                         chat_id=update.effective_chat.id,
-                        text="invalid purifier cmd (x, l, m, h, f)",
+                        text="invalid purifier cmd (x, l, m, h, a, f)",
                     )
             except Exception as e:
                 context.bot.send_message(

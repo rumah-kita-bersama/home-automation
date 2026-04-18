@@ -89,7 +89,7 @@ class TuyaAirPurifier:
     def set_fan_speed(self, speed):
         """ 
         Controls the fan speed using DPS Index 4.
-        Typical string values might be "low", "mid", "high".
+        Typical string values might be "low", "mid", "high", "auto".
         """
         if self.purifier is None:
             return None
