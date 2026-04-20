@@ -3,7 +3,6 @@ pigpio==1.78
 python-telegram-bot==13.10
 pytradfri==8.0.1
 requests==2.32.5
-selenium==3.141.0
 tinytuya==1.12.11
 tuyapower==0.1.0
 urllib3==1.26.16
