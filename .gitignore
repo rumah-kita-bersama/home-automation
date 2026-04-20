@@ -10,6 +10,9 @@ secrets.json
 *.pyc
 __pycache__/
 tinytuya.json
+devices.json
+snapshot.json
+tuya-raw.json
 
 # imei
 */**/dump.txt
