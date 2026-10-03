@@ -51,6 +51,7 @@ class TuyaBulb:
                 parent=gateway,
             )
         except Exception:
+            log.exception("failed to connect to bulb")
             return
 
         self._disconnect()  # close the old connection
@@ -122,6 +123,7 @@ class TuyaAirPurifier:
                 local_key=self.key,
             )
         except Exception:
+            log.exception("failed to connect to purifier")
             return
 
         self._disconnect()  # close the old connection
