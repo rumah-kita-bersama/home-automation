@@ -27,12 +27,13 @@ class AirConditioner:
 
 
 class TuyaBulb:
-    def __init__(self, version, dev_id, node_id, key, gw_id):
+    def __init__(self, version, dev_id, node_id, key, gw_id, address=None):
         self.version = version
         self.dev_id = dev_id
         self.node_id = node_id
         self.key = key
         self.gw_id = gw_id
+        self.address = address or "Auto"
         self.gateway = None
         self.bulb = None
         self._connect()
@@ -40,7 +41,7 @@ class TuyaBulb:
     def _connect(self):
         try:
             gateway = tinytuya.BulbDevice(
-                version=self.version, dev_id=self.gw_id, address="Auto", local_key=self.key
+                version=self.version, dev_id=self.gw_id, address=self.address, local_key=self.key
             )
             bulb = tinytuya.BulbDevice(
                 version=self.version,
@@ -107,10 +108,11 @@ class TuyaBulb:
 
 
 class TuyaAirPurifier:
-    def __init__(self, version, dev_id, key):
+    def __init__(self, version, dev_id, key, address=None):
         self.version = version
         self.dev_id = dev_id
         self.key = key
+        self.address = address or "Auto"
         self.purifier = None
         self._connect()
 
@@ -119,7 +121,7 @@ class TuyaAirPurifier:
             purifier = tinytuya.OutletDevice(
                 version=self.version,
                 dev_id=self.dev_id,
-                address="Auto",
+                address=self.address,
                 local_key=self.key,
             )
         except Exception:

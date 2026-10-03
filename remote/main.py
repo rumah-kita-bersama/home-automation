@@ -10,10 +10,10 @@ def main():
     secrets = load_secrets("secrets.yaml")
 
     b = secrets.get("bulb")
-    bulb = TuyaBulb(b["ver"], b["id"], b["node_id"], b["key"], b["gw_id"])
+    bulb = TuyaBulb(b["ver"], b["id"], b["node_id"], b["key"], b["gw_id"], b.get("ip"))
 
     p = secrets.get("purifier")
-    purifier = TuyaAirPurifier(p["ver"], p["id"], p["key"])
+    purifier = TuyaAirPurifier(p["ver"], p["id"], p["key"], p.get("ip"))
 
     ac = AC()
 
