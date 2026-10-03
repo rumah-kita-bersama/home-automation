@@ -1,7 +1,7 @@
 import os
 import yaml
 
-from acv3.acv3 import ACV3 
+from ac.ac import AC
 from common import AuthMiddleware, TelegramBot, TuyaBulb, TuyaAirPurifier
 from bulbac import BulbACHandler
 
@@ -15,7 +15,7 @@ def main():
     p = secrets.get("purifier")
     purifier = TuyaAirPurifier(p["ver"], p["id"], p["key"])
 
-    ac = ACV3()
+    ac = AC()
 
     handler = BulbACHandler(bulb, ac, purifier)
 
@@ -35,5 +35,4 @@ def load_secrets(filename):
 
 
 if __name__ == "__main__":
-    print("Starting...")
     main()

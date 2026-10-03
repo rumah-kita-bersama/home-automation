@@ -1,7 +1,11 @@
+import logging
+
 import requests
 import tinytuya
 import tinytuya.core
 from telegram.ext import Filters, MessageHandler, Updater
+
+log = logging.getLogger(__name__)
 
 
 class AirConditioner:
@@ -24,28 +28,62 @@ class AirConditioner:
 
 class TuyaBulb:
     def __init__(self, version, dev_id, node_id, key, gw_id):
+        self.version = version
+        self.dev_id = dev_id
+        self.node_id = node_id
+        self.key = key
+        self.gw_id = gw_id
+        self.gateway = None
+        self.bulb = None
+        self._connect()
+
+    def _connect(self):
         try:
-            self.gateway = tinytuya.BulbDevice(
-                version=version, dev_id=gw_id, address="Auto", local_key=key
+            gateway = tinytuya.BulbDevice(
+                version=self.version, dev_id=self.gw_id, address="Auto", local_key=self.key
             )
-            self.bulb = tinytuya.BulbDevice(
-                version=version,
-                dev_id=dev_id,
+            bulb = tinytuya.BulbDevice(
+                version=self.version,
+                dev_id=self.dev_id,
                 address="Auto",
-                local_key=key,
-                node_id=node_id,
-                parent=self.gateway,
+                local_key=self.key,
+                node_id=self.node_id,
+                parent=gateway,
             )
-        except:
-            self.bulb = None
+        except Exception:
+            return
+
+        self._disconnect()  # close the old connection
+
+        self.gateway = gateway
+        self.bulb = bulb
+
+    def _disconnect(self):
+        self._close(self.bulb)
+        self._close(self.gateway)
+        self.bulb = None
+        self.gateway = None
+
+    def _close(self, device):
+        if device is not None and device.socket:
+            device.socket.close()
+            device.socket = None
 
     def turn_off(self):
         if self.bulb is None:
+            self._connect()
+        if self.bulb is None:
             return None
 
-        self.bulb.turn_off()
+        try:
+            self.bulb.turn_off()
+        except Exception:
+            log.exception("failed to send command to bulb")
+            self._disconnect()
 
     def set_brightness(self, brightness):
+        if self.bulb is None:
+            self._connect()
         if self.bulb is None or brightness < 10 or brightness > 999:
             return None
 
@@ -58,48 +96,75 @@ class TuyaBulb:
             },
         )
 
-        self.bulb.turn_on(nowait=False)
-        return self.bulb._send_receive(payload, getresponse=False)
+        try:
+            self.bulb.turn_on(nowait=False)
+            return self.bulb._send_receive(payload, getresponse=False)
+        except Exception:
+            log.exception("failed to send command to bulb")
+            self._disconnect()
+            return None
 
 
 class TuyaAirPurifier:
     def __init__(self, version, dev_id, key):
+        self.version = version
+        self.dev_id = dev_id
+        self.key = key
+        self.purifier = None
+        self._connect()
+
+    def _connect(self):
         try:
-            self.purifier = tinytuya.OutletDevice(
-                version=version,
-                dev_id=dev_id,
+            purifier = tinytuya.OutletDevice(
+                version=self.version,
+                dev_id=self.dev_id,
                 address="Auto",
-                local_key=key,
+                local_key=self.key,
             )
         except Exception:
-            self.purifier = None
+            return
+
+        self._disconnect()  # close the old connection
+
+        self.purifier = purifier
+
+    def _disconnect(self):
+        if self.purifier is not None and self.purifier.socket:
+            self.purifier.socket.close()
+            self.purifier.socket = None
+        self.purifier = None
+
+    def _call(self, fn):
+        if self.purifier is None:
+            self._connect()
+        if self.purifier is None:
+            return None
+
+        try:
+            return fn()
+        except Exception:
+            log.exception("failed to send command to purifier")
+            self._disconnect()
+            return None
 
     def turn_on(self):
-        if self.purifier is None:
-            return None
-        self.purifier.set_value(1, True)
+        return self._call(lambda: self.purifier.set_value(1, True))
 
     def turn_off(self):
-        if self.purifier is None:
-            return None
-        self.purifier.set_value(1, False)
+        return self._call(lambda: self.purifier.set_value(1, False))
 
     def set_fan_speed(self, speed):
-        """ 
+        """
         Controls the fan speed using DPS Index 4.
         Typical string values might be "low", "mid", "high", "auto".
         """
-        if self.purifier is None:
-            return None
-        self.purifier.set_value(4, speed)
+        return self._call(lambda: self.purifier.set_value(4, speed))
 
     def reset_filter(self):
         """
         Resets the filter using DPS Index 11.
         """
-        if self.purifier is None:
-            return None
-        self.purifier.set_value(11, True)
+        return self._call(lambda: self.purifier.set_value(11, True))
 
 
 class TelegramBot:

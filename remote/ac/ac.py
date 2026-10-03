@@ -22,7 +22,7 @@ K_BIT_MARK = 370
 K_ONE_SPACE = 420
 K_ZERO_SPACE = 1220
 
-class ACV3:
+class AC:
     def __init__(self):
         self.pin = GPIO_PIN
 
