@@ -2,7 +2,7 @@ import os
 import yaml
 
 from ac.ac import AC
-from common import AuthMiddleware, TelegramBot, TuyaBulb, TuyaAirPurifier
+from common import AuthMiddleware, TelegramBot, TuyaBulb
 from bulbac import BulbACHandler
 
 
@@ -12,12 +12,9 @@ def main():
     b = secrets.get("bulb")
     bulb = TuyaBulb(b["ver"], b["id"], b["node_id"], b["key"], b["gw_id"], b.get("ip"))
 
-    p = secrets.get("purifier")
-    purifier = TuyaAirPurifier(p["ver"], p["id"], p["key"], p.get("ip"))
-
     ac = AC()
 
-    handler = BulbACHandler(bulb, ac, purifier)
+    handler = BulbACHandler(bulb, ac)
 
     t = secrets.get("telegram")
     bot = TelegramBot(t["token"])

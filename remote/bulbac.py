@@ -2,7 +2,7 @@ from common import BaseHandler
 
 
 class BulbACHandler(BaseHandler):
-    def __init__(self, bulb, ac, purifier):
+    def __init__(self, bulb=None, ac=None, purifier=None):
         self.bulb = bulb
         self.ac = ac
         self.purifier = purifier
